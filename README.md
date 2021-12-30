@@ -33,3 +33,7 @@ options:
 newer versions, you would need to paste the code into the TI Student Software
 and import images manually.
 
+## Installation
+
+`sudo make install` installs this script to `/usr/local/bin`.
+
