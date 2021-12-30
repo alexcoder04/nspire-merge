@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+
+from PIL import Image
+import argparse
+import glob
+import os
+import sys
+
+def error(message: str = "something went wrong"):
+    print(f"Error: {message}.")
+    sys.exit(1)
+
+def little_endian(number: int, byte_width: int) -> str:
+    escape_string = ""
+    for byte in range(0, byte_width):
+        escape_string += f"\\{(number>>(byte*8))&255}"
+    return escape_string
+
+def base_image_name(filename: str) -> str:
+    return os.path.basename(filename).split(".")[0]
+
+def write_image(filename: str, out_file) -> None:
+    img = Image.open(filename).convert("RGBA")
+    img_data = img.load()
+    if img_data is None:
+        error("can not load image data")
+
+    out_file.write(f"_R.IMG.{base_image_name(filename)} = '")
+    out_file.write(little_endian(img.size[0], 4) + little_endian(img.size[1], 4)) # width height
+    out_file.write(little_endian(0, 1) + little_endian(0, 1) + little_endian(0, 2)) # alignment, flags, padding
+    out_file.write(little_endian(img.size[0]*2, 4))
+    out_file.write(little_endian(16, 2) + little_endian(1, 2)) # bits per pixels, planes per bit
+
+    for y in range(img.size[1]):
+        for x in range(img.size[0]):
+            pixel = img_data[x, y]
+            r, g, b = int((pixel[0]/255)*31), int((pixel[1]/255)*31), int((pixel[2]/255)*31)
+            a = int(pixel[3] == 255)
+            total = b + (g<<5) + (r<<10) + (a<<15)
+            out_file.write(little_endian(total, 2))
+    out_file.write("'\n")
+
+def write_lua(filename: str, out_file, strip: bool = False):
+    if not strip:
+        header = f"----- Begin Lua file: '{filename}' -----"
+        out_file.write((len(header) * "-") + "\n" + header + "\n")
+
+    if not os.path.exists(filename):
+        error(f"'{filename}' does not exist")
+
+    with open(filename, "r") as f_in:
+        lines = f_in.readlines()
+        for line in lines:
+            if strip and line.strip() == "":
+                continue
+            if strip and line.strip().startswith("--"):
+                continue
+            out_file.write(line)
+
+    if not strip:
+        header = f"----- End Lua file '{filename}' -----"
+        out_file.write(header + "\n" + (len(header) * "-") + "\n")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+            description="Merge Lua source files and resources for TI-Nspire projects"
+            )
+
+    parser.add_argument("input_files", type=str, nargs="+", help="specify input files")
+    parser.add_argument("--resources", type=str, default="res", help="load images from folder (default 'res/')")
+    parser.add_argument("--out", type=str, default="out.lua", help="write output to file (default 'out.lua')")
+    parser.add_argument("--strip", action="store_true", help="strip out blank lines and comments")
+    parser.add_argument("--api-version", type=float, default=2.2, help="specify api version (default '2.2')")
+
+    args = parser.parse_args()
+
+    with open(args.out, "w") as f_out:
+        f_out.write(f"platform.apiLevel = '{args.api_version}'\n")
+
+        if args.api_version > 2.2:
+            print("Warning: you selected an api version that does not support inline-images, skipping images")
+        else:
+            if not os.path.isdir(args.resources):
+                error("resource directory does not exist")
+            resource_files = glob.glob(f"{args.resources}/*.png")
+            if len(resource_files) > 0:
+                if not args.strip:
+                    header = "----- Begin Images -----"
+                    f_out.write((len(header) * "-") + "\n" + header + "\n")
+                f_out.write("_R = {}\n")
+                f_out.write("_R.IMG = {}\n")
+                for f in resource_files:
+                    write_image(f, f_out)
+                if not args.strip:
+                    header = "----- End Images ----"
+                    f_out.write(header + "\n" + (len(header) * "-") + "\n")
+
+        for f in args.input_files:
+            if "*" in f:
+                for f1 in glob.glob(f):
+                    write_lua(f1, f_out, args.strip)
+                continue
+            write_lua(f, f_out, args.strip)
+
