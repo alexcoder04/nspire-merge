@@ -80,20 +80,21 @@ if __name__ == "__main__":
         if args.api_version > 2.2:
             print("Warning: you selected an api version that does not support inline-images, skipping images")
         else:
-            if not os.path.isdir(args.resources):
-                error("resource directory does not exist")
-            resource_files = glob.glob(f"{args.resources}/*.png")
-            if len(resource_files) > 0:
-                if not args.strip:
-                    header = "----- Begin Images -----"
-                    f_out.write((len(header) * "-") + "\n" + header + "\n")
-                f_out.write("_R = {}\n")
-                f_out.write("_R.IMG = {}\n")
-                for f in resource_files:
-                    write_image(f, f_out)
-                if not args.strip:
-                    header = "----- End Images ----"
-                    f_out.write(header + "\n" + (len(header) * "-") + "\n")
+            if os.path.isdir(args.resources):
+                resource_files = glob.glob(f"{args.resources}/*.png")
+                if len(resource_files) > 0:
+                    if not args.strip:
+                        header = "----- Begin Images -----"
+                        f_out.write((len(header) * "-") + "\n" + header + "\n")
+                    f_out.write("_R = {}\n")
+                    f_out.write("_R.IMG = {}\n")
+                    for f in resource_files:
+                        write_image(f, f_out)
+                    if not args.strip:
+                        header = "----- End Images ----"
+                        f_out.write(header + "\n" + (len(header) * "-") + "\n")
+            else:
+                print("Warning: resource directory does not exist")
 
         for f in args.input_files:
             if "*" in f:
