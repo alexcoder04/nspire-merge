@@ -4,8 +4,9 @@
 This Python script merges multiple Lua source files and images into one file for
 TI-Nspire projects.
 
-This project is inspired by https://github.com/DaveDuck321/TI-Resource-Merge and
-uses its image conversion mechanism, however the rest was re-written from
+This project is inspired by [DaveDuck321](https://github.com/DaveDuck321)'s
+[TI-Resource-Merge](https://github.com/DaveDuck321/TI-Resource-Merge) (MIT license)
+and uses its image conversion mechanism, however the rest was re-written from
 scratch to provide a more stable CLI interface and more options.
 
 The generated file can be either pasted into TI Student Software or be compiled
