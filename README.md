@@ -1,7 +1,7 @@
 
 # nspire-merge
 
-This Python script merges multiple Lua source files and images into one file for
+This Python script merges multiple Lua source files and images into one Lua file for
 TI-Nspire projects.
 
 This project is inspired by [DaveDuck321](https://github.com/DaveDuck321)'s
@@ -36,5 +36,23 @@ and import images manually.
 
 ## Installation
 
-`sudo make install` installs this script to `/usr/local/bin`.
+### Requirements
 
+ - `PIL` / `Pillow`
+
+Can be installed using `make deps`.
+
+### Installing through the AUR on Arch Linux
+
+This project is available on the AUR as [`nspire-merge`](https://aur.archlinux.org/packages/nspire-merge).
+Either install it manually or use an AUR helper of your choice.
+
+### Install using `make`
+
+Install the script to `/usr/local/bin`:
+
+> `sudo make install`
+
+### Uninstalling
+
+`sudo make uninstall` or `sudo rm -vi /usr/local/bin/nspire-merge /usr/local/share/man/man1/nspire-merge`.

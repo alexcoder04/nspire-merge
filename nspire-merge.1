@@ -1,0 +1,37 @@
+.TH "nspire-merge" "1" 
+
+.SH "NAME"
+.PP
+nspire-merge - merging multiple Lua source files and images into one Lua file for TI-Nspire projects
+
+.SH "SYNOPSIS"
+.PP
+shclrz [OPTIONS] [INPUT FILES ...]
+
+.SH "OPTIONS"
+.SS "-h, --help"
+.PP
+Print help.
+.SS "--resources [RESOURCES]"
+.PP
+Load images from this folder (default "res/").
+.SS "--out [OUT]
+.PP
+Specify file to write the output to (default "out.lua").
+.SS "--strip"
+.PP
+Strips blank lines and comments.
+.SS "--api-version [API VERSION]"
+Specifies API version (default '2.2').
+
+.SH "EXAMPLES"
+.SS "nspire-merge --out myproject.lua -- main.lua gui.lua"
+.PP
+Generates "myproject.lua" from "main.lua" and "gui.lua" (in this order) and images from "res/".
+.SS "nspire-merge --api-version 2.1 --strip -- *.lua"
+.PP
+Generates "out.lua" from all Lua files in the folder, strips all blank lines and comments from it and sets the API version to "2.1".
+
+.SH "AUTHOR"
+.PP
+alexcoder04 (\fIhttps://github.com/alexcoder04/nspire-merge\fP)
